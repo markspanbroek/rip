@@ -17,7 +17,7 @@ public class RestClient {
         }
     }
 
-    public class MalformedUrl extends RuntimeException {
+    public static class MalformedUrl extends RuntimeException {
         MalformedUrl(MalformedURLException cause) {
             super(cause);
         }

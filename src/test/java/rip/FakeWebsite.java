@@ -37,6 +37,17 @@ public class FakeWebsite {
         setContents("");
     }
 
+    public FakeWebsite(String url, String relativePath) {
+        URL baseUrl = mock(URL.class);
+        this.url = mock(URL.class);
+        try {
+            whenNew(URL.class).withArguments(url).thenReturn(baseUrl);
+            whenNew(URL.class).withArguments(baseUrl, relativePath).thenReturn(this.url);
+        } catch (Exception ignored) {
+        }
+        setContents("");
+    }
+
     public void setContents(String contents) {
         setContents(new ByteArrayInputStream(contents.getBytes()));
     }

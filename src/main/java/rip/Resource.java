@@ -2,9 +2,12 @@ package rip;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Scanner;
+
+import static rip.RestClient.MalformedUrl;
 
 public class Resource {
 
@@ -12,6 +15,18 @@ public class Resource {
 
     Resource(URL url) {
         this.url = url;
+    }
+
+    public Resource path(String relativePath) {
+        try {
+            return new Resource(createUrl(relativePath));
+        } catch (MalformedURLException exception) {
+            throw new MalformedUrl(exception);
+        }
+    }
+
+    private URL createUrl(String relativePath) throws MalformedURLException {
+        return new URL(url, relativePath);
     }
 
     public String get(){

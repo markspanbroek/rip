@@ -9,13 +9,17 @@ import rip.Resource.ConnectionFailure;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.*;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
+import static rip.RestClient.MalformedUrl;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ RestClient.class, Resource.class, FakeWebsite.class })
@@ -59,5 +63,22 @@ public class ResourceTest {
         when(fake.stream.read(any(byte[].class), anyInt(), anyInt())).thenThrow(new IOException());
 
         new RestClient().open(BASE_URL).get();
+    }
+
+    @Test
+    public void handlesRelativePaths() {
+        fake = new FakeWebsite(BASE_URL, "bar");
+        fake.setContents("baz");
+
+        assertEquals("baz", new RestClient().open(BASE_URL).path("bar").get());
+    }
+
+    @Test(expected = MalformedUrl.class)
+    public void throwsOnInvalidRelativePath() throws Exception {
+        whenNew(URL.class)
+                .withArguments(any(URL.class), any(String.class))
+                .thenThrow(new MalformedURLException());
+
+        new RestClient().open(BASE_URL).path("foo");
     }
 }
