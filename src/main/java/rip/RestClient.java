@@ -1,20 +1,23 @@
 package rip;
 
+import rip.url.Url;
+import rip.url.UrlCreator;
+
 import java.net.MalformedURLException;
-import java.net.URL;
 
 public class RestClient {
 
+    UrlCreator urlCreator = new UrlCreator();
+
     public Resource open(String url) {
-        return new Resource(createUrl(url));
+        return new Resource(createUrl(url), urlCreator);
     }
 
-    private URL createUrl(String url) {
+    private Url createUrl(String url) {
         try {
-            return new URL(url);
+            return urlCreator.create(url);
         } catch (MalformedURLException exception) {
             throw new MalformedUrl(exception);
         }
     }
-
 }

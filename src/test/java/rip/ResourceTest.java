@@ -2,59 +2,64 @@ package rip;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import rip.url.Url;
+import rip.url.UrlCreator;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Scanner;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.whenNew;
+import static org.mockito.Mockito.*;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ RestClient.class, Resource.class, FakeWebsite.class, Scanner.class })
 public class ResourceTest {
 
     private static final String BASE_URL = "http://example.com";
+    private static final String CONTENTS = "foo";
 
-    private FakeWebsite fake;
+    private RestClient client = new RestClient();
+
+    private UrlCreator urlCreator = mock(UrlCreator.class);
+    private Url url = mock(Url.class);
+    private HttpURLConnection connection = mock(HttpURLConnection.class);
 
     @Before
-    public void setUp() throws Exception {
-        fake = new FakeWebsite(BASE_URL);
+    public void setUp() throws IOException {
+        ByteArrayInputStream stream = new ByteArrayInputStream(CONTENTS.getBytes());
+        when(urlCreator.create(BASE_URL)).thenReturn(url);
+        when(url.openConnection()).thenReturn(connection);
+        when(connection.getInputStream()).thenReturn(stream);
+
+        client.urlCreator = urlCreator;
     }
 
     @Test
     public void retrievesResource() {
-        fake.setContents("foo");
-        assertEquals("foo", new RestClient().open(BASE_URL).get());
+        assertEquals(CONTENTS, client.open(BASE_URL).get());
     }
 
     @Test
     public void sendsJsonHeader() {
-        new RestClient().open(BASE_URL).get();
+        client.open(BASE_URL).get();
 
-        verify(fake.connection).setRequestProperty("Accept", "application/json");
+        verify(connection).setRequestProperty("Accept", "application/json");
     }
 
     @Test
-    public void handlesRelativePaths() {
-        fake = new FakeWebsite(BASE_URL, "bar");
-        fake.setContents("baz");
+    public void handlesRelativePaths() throws IOException {
+        Url baseUrl = mock(Url.class);
+        when(urlCreator.create(BASE_URL)).thenReturn(baseUrl);
+        when(urlCreator.create(baseUrl, "bar")).thenReturn(url);
 
-        assertEquals("baz", new RestClient().open(BASE_URL).path("bar").get());
+        assertEquals(CONTENTS, client.open(BASE_URL).path("bar").get());
     }
 
     @Test(expected = MalformedUrl.class)
     public void throwsOnInvalidRelativePath() throws Exception {
-        whenNew(URL.class)
-                .withArguments(any(URL.class), any(String.class))
+        when(urlCreator.create(url, "foo"))
                 .thenThrow(new MalformedURLException());
 
-        new RestClient().open(BASE_URL).path("foo");
+        client.open(BASE_URL).path("foo");
     }
 }

@@ -1,32 +1,36 @@
 package rip;
 
+import rip.url.Url;
+import rip.url.UrlCreator;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLConnection;
 
 public class Resource {
 
-    private URL url;
+    private Url url;
+    private UrlCreator urlCreator;
     private ResponseReader reader = new ResponseReader();
 
-    Resource(URL url) {
+    Resource(Url url, UrlCreator urlCreator) {
         this.url = url;
+        this.urlCreator = urlCreator;
     }
 
     public Resource path(String relativePath) {
-        return new Resource(createUrl(relativePath));
+        return new Resource(createUrl(relativePath), urlCreator);
     }
 
     public String get(){
-            URLConnection connection = openConnection();
-            connection.setRequestProperty("Accept", "application/json");
-            return reader.read(connection);
+        URLConnection connection = openConnection();
+        connection.setRequestProperty("Accept", "application/json");
+        return reader.read(connection);
     }
 
-    private URL createUrl(String relativePath) {
+    private Url createUrl(String relativePath) {
         try {
-            return new URL(url, relativePath);
+            return urlCreator.create(url, relativePath);
         } catch (MalformedURLException exception) {
             throw new MalformedUrl(exception);
         }
