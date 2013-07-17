@@ -52,7 +52,7 @@ public class FakeWebsite {
         setContents(new ByteArrayInputStream(contents.getBytes()));
     }
 
-    public void setContents(InputStream contents) {
+    private void setContents(InputStream contents) {
         connection = mock(HttpURLConnection.class);
         stream = contents;
 

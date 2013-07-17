@@ -1,7 +1,6 @@
 package rip;
 
 import org.junit.Test;
-import rip.RestClient.MalformedUrl;
 
 public class RestClientTest {
 
