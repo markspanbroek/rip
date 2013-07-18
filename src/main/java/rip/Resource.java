@@ -1,25 +1,21 @@
 package rip;
 
-import rip.url.Url;
-import rip.url.UrlCreator;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLConnection;
 
 public class Resource {
 
-    private Url url;
-    UrlCreator urlCreator;
+    private URL url;
     private ResponseReader reader = new ResponseReader();
 
-    Resource(Url url, UrlCreator urlCreator) {
+    Resource(URL url) {
         this.url = url;
-        this.urlCreator = urlCreator;
     }
 
     public Resource path(String relativePath) {
-        return new Resource(createUrl(relativePath), urlCreator);
+        return new Resource(createUrl(relativePath));
     }
 
     public String get(){
@@ -28,9 +24,9 @@ public class Resource {
         return reader.read(connection);
     }
 
-    private Url createUrl(String relativePath) {
+    private URL createUrl(String relativePath) {
         try {
-            return urlCreator.create(url, relativePath);
+            return new URL(url, relativePath);
         } catch (MalformedURLException exception) {
             throw new InvalidUrl(exception);
         }

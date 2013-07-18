@@ -1,28 +1,24 @@
 package rip;
 
-import rip.url.Url;
-import rip.url.UrlCreator;
-
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 
 public class RestClient {
 
-    UrlCreator urlCreator = new UrlCreator();
-
     public Resource open(String url) {
-        return new Resource(createUrl(url), urlCreator);
+        return new Resource(validateUrl(createUrl(url)));
     }
 
-    private Url createUrl(String url) {
+    private URL createUrl(String url) {
         try {
-            return validateUrl(urlCreator.create(url));
+            return new URL(url);
         } catch (MalformedURLException exception) {
             throw new InvalidUrl(exception);
         }
     }
 
-    private Url validateUrl(Url url) {
+    private URL validateUrl(URL url) {
         if (!Arrays.asList("http", "https").contains(url.getProtocol())) {
             throw new InvalidUrl("only http(s) urls are supported");
         }

@@ -13,14 +13,13 @@ import static org.junit.Assert.assertEquals;
 public class ResourceTest {
 
     MockWebServer server;
-    String serverUrl;
     Resource resource;
 
     @Before
     public void setUp() throws IOException {
         server = new MockWebServer();
         server.play();
-        serverUrl = server.getUrl("/").toExternalForm();
+        String serverUrl = server.getUrl("/").toExternalForm();
         resource = new RestClient().open(serverUrl);
     }
 
