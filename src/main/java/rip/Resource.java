@@ -32,7 +32,7 @@ public class Resource {
         try {
             return urlCreator.create(url, relativePath);
         } catch (MalformedURLException exception) {
-            throw new MalformedUrl(exception);
+            throw new InvalidUrl(exception);
         }
     }
 

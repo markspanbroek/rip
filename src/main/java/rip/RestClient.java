@@ -4,6 +4,7 @@ import rip.url.Url;
 import rip.url.UrlCreator;
 
 import java.net.MalformedURLException;
+import java.util.Arrays;
 
 public class RestClient {
 
@@ -15,9 +16,16 @@ public class RestClient {
 
     private Url createUrl(String url) {
         try {
-            return urlCreator.create(url);
+            return validateUrl(urlCreator.create(url));
         } catch (MalformedURLException exception) {
-            throw new MalformedUrl(exception);
+            throw new InvalidUrl(exception);
         }
+    }
+
+    private Url validateUrl(Url url) {
+        if (!Arrays.asList("http", "https").contains(url.getProtocol())) {
+            throw new InvalidUrl("only http(s) urls are supported");
+        }
+        return url;
     }
 }

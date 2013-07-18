@@ -20,4 +20,8 @@ public class Url {
     public URLConnection openConnection() throws IOException {
         return javaURL.openConnection();
     }
+
+    public String getProtocol() {
+        return javaURL.getProtocol();
+    }
 }

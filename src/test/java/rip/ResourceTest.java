@@ -30,6 +30,7 @@ public class ResourceTest {
         when(urlCreator.create(BASE_URL)).thenReturn(url);
         when(url.openConnection()).thenReturn(connection);
         when(connection.getInputStream()).thenReturn(stream);
+        when(url.getProtocol()).thenReturn("http");
 
         client.urlCreator = urlCreator;
     }
@@ -49,13 +50,14 @@ public class ResourceTest {
     @Test
     public void handlesRelativePaths() throws IOException {
         Url baseUrl = mock(Url.class);
+        when(baseUrl.getProtocol()).thenReturn("http");
         when(urlCreator.create(BASE_URL)).thenReturn(baseUrl);
         when(urlCreator.create(baseUrl, "bar")).thenReturn(url);
 
         assertEquals(CONTENTS, client.open(BASE_URL).path("bar").get());
     }
 
-    @Test(expected = MalformedUrl.class)
+    @Test(expected = InvalidUrl.class)
     public void throwsOnInvalidRelativePath() throws Exception {
         when(urlCreator.create(url, "foo"))
                 .thenThrow(new MalformedURLException());

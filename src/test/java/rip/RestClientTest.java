@@ -11,8 +11,19 @@ public class RestClientTest {
         client.open("http://example.com");
     }
 
-    @Test(expected = MalformedUrl.class)
+    @Test(expected = InvalidUrl.class)
     public void throwsOnMalformedUrl() {
         client.open("malformed url");
     }
+
+    @Test(expected = InvalidUrl.class)
+    public void throwsOnNonHttpUrl() {
+        client.open("ftp://example.com");
+    }
+
+    @Test
+    public void acceptsHttpsUrl() {
+        client.open("https://example.com");
+    }
+
 }
