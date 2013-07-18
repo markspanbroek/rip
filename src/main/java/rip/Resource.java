@@ -10,7 +10,7 @@ import java.net.URLConnection;
 public class Resource {
 
     private Url url;
-    private UrlCreator urlCreator;
+    UrlCreator urlCreator;
     private ResponseReader reader = new ResponseReader();
 
     Resource(Url url, UrlCreator urlCreator) {

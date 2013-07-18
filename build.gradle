@@ -11,4 +11,5 @@ repositories {
 dependencies {
     testCompile "junit:junit:4.+"
     testCompile "org.mockito:mockito-core:1.9.+"
+    testCompile "com.google.mockwebserver:mockwebserver:20130706"
 }

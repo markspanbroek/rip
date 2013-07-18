@@ -1,67 +1,57 @@
 package rip;
 
+import com.google.mockwebserver.MockResponse;
+import com.google.mockwebserver.MockWebServer;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import rip.url.Url;
-import rip.url.UrlCreator;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
 
 public class ResourceTest {
 
-    private static final String BASE_URL = "http://example.com";
-    private static final String CONTENTS = "foo";
-
-    private RestClient client = new RestClient();
-
-    private UrlCreator urlCreator = mock(UrlCreator.class);
-    private Url url = mock(Url.class);
-    private HttpURLConnection connection = mock(HttpURLConnection.class);
+    MockWebServer server;
+    String serverUrl;
+    Resource resource;
 
     @Before
     public void setUp() throws IOException {
-        ByteArrayInputStream stream = new ByteArrayInputStream(CONTENTS.getBytes());
-        when(urlCreator.create(BASE_URL)).thenReturn(url);
-        when(url.openConnection()).thenReturn(connection);
-        when(connection.getInputStream()).thenReturn(stream);
-        when(url.getProtocol()).thenReturn("http");
+        server = new MockWebServer();
+        server.play();
+        serverUrl = server.getUrl("/").toExternalForm();
+        resource = new RestClient().open(serverUrl);
+    }
 
-        client.urlCreator = urlCreator;
+    @After
+    public void tearDown() throws IOException {
+        server.shutdown();
     }
 
     @Test
-    public void retrievesResource() {
-        assertEquals(CONTENTS, client.open(BASE_URL).get());
+    public void getsResource() throws InterruptedException, IOException {
+        server.enqueue(new MockResponse().setBody("foo"));
+
+        assertEquals("foo", resource.get());
+        assertEquals("/", server.takeRequest().getPath());
     }
 
     @Test
-    public void sendsJsonHeader() {
-        client.open(BASE_URL).get();
+    public void sendsJsonHeader() throws InterruptedException {
+        server.enqueue(new MockResponse());
 
-        verify(connection).setRequestProperty("Accept", "application/json");
+        resource.get();
+
+        assertEquals("application/json", server.takeRequest().getHeader("Accept"));
     }
 
     @Test
-    public void handlesRelativePaths() throws IOException {
-        Url baseUrl = mock(Url.class);
-        when(baseUrl.getProtocol()).thenReturn("http");
-        when(urlCreator.create(BASE_URL)).thenReturn(baseUrl);
-        when(urlCreator.create(baseUrl, "bar")).thenReturn(url);
+    public void handlesRelativePaths() throws IOException, InterruptedException {
+        server.enqueue(new MockResponse());
 
-        assertEquals(CONTENTS, client.open(BASE_URL).path("bar").get());
-    }
+        resource.path("bar").get();
 
-    @Test(expected = InvalidUrl.class)
-    public void throwsOnInvalidRelativePath() throws Exception {
-        when(urlCreator.create(url, "foo"))
-                .thenThrow(new MalformedURLException());
-
-        client.open(BASE_URL).path("foo");
+        assertEquals("/bar", server.takeRequest().getPath());
     }
 }
