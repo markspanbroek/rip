@@ -53,6 +53,18 @@ public class ResourceTest {
     }
 
     @Test
+    public void postsResource() throws InterruptedException {
+        server.enqueue(new MockResponse());
+
+        resource.post("foo");
+
+        RecordedRequest request = server.takeRequest();
+        assertEquals("POST", request.getMethod());
+        assertEquals("foo", new String(request.getBody()));
+        assertEquals("application/json", request.getHeader("Content-Type"));
+    }
+
+    @Test
     public void handlesRelativePaths() throws IOException, InterruptedException {
         server.enqueue(new MockResponse());
         server.enqueue(new MockResponse());

@@ -1,13 +1,13 @@
 package rip;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.*;
 
 public class Resource {
 
     private URL url;
     private ResponseReader reader = new ResponseReader();
+    private RequestWriter writer = new RequestWriter();
 
     Resource(URL url) {
         this.url = url;
@@ -24,12 +24,18 @@ public class Resource {
     }
 
     public void put(String contents) {
+        send("PUT", contents);
+    }
+
+    public void post(String contents) {
+        send("POST", contents);
+    }
+
+    private void send(String requestMethod, String contents) {
         HttpURLConnection connection = openConnection();
-        setRequestMethod(connection, "PUT");
-        connection.setDoOutput(true);
         connection.setRequestProperty("Content-Type", "application/json");
-        send(connection, contents);
-        reader.read(connection);
+        setRequestMethod(connection, requestMethod);
+        writer.write(connection, contents);
     }
 
     private URL createUrl(String relativePath) {
@@ -53,14 +59,6 @@ public class Resource {
             connection.setRequestMethod(method);
         } catch (ProtocolException shouldNotHappen) {
             throw new Error(shouldNotHappen);
-        }
-    }
-
-    private void send(HttpURLConnection connection, String contents) {
-        try (OutputStream out = connection.getOutputStream()) {
-            out.write(contents.getBytes());
-        } catch (IOException exception) {
-            throw new ConnectionFailure(exception);
         }
     }
 }
