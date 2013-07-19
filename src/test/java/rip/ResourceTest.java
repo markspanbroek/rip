@@ -65,6 +65,16 @@ public class ResourceTest {
     }
 
     @Test
+    public void deletesResource() throws InterruptedException {
+        server.enqueue(new MockResponse());
+
+        resource.delete();
+
+        RecordedRequest request = server.takeRequest();
+        assertEquals("DELETE", request.getMethod());
+    }
+
+    @Test
     public void handlesRelativePaths() throws IOException, InterruptedException {
         server.enqueue(new MockResponse());
         server.enqueue(new MockResponse());

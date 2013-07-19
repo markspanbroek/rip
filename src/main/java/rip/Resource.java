@@ -23,6 +23,12 @@ public class Resource {
         return reader.read(connection);
     }
 
+    public void delete() {
+        HttpURLConnection connection = openConnection();
+        setRequestMethod(connection, "DELETE");
+        reader.read(connection);
+    }
+
     public void put(String contents) {
         send("PUT", contents);
     }
