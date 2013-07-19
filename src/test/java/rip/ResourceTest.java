@@ -2,6 +2,7 @@ package rip;
 
 import com.google.mockwebserver.MockResponse;
 import com.google.mockwebserver.MockWebServer;
+import com.google.mockwebserver.RecordedRequest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,24 +34,33 @@ public class ResourceTest {
         server.enqueue(new MockResponse().setBody("foo"));
 
         assertEquals("foo", resource.get());
-        assertEquals("/", server.takeRequest().getPath());
+        RecordedRequest request = server.takeRequest();
+        assertEquals("/", request.getPath());
+        assertEquals("application/json", request.getHeader("Accept"));
+
     }
 
     @Test
-    public void sendsJsonHeader() throws InterruptedException {
+    public void putsResource() throws InterruptedException {
         server.enqueue(new MockResponse());
 
-        resource.get();
+        resource.put("foo");
 
-        assertEquals("application/json", server.takeRequest().getHeader("Accept"));
+        RecordedRequest request = server.takeRequest();
+        assertEquals("PUT", request.getMethod());
+        assertEquals("foo", new String(request.getBody()));
+        assertEquals("application/json", request.getHeader("Content-Type"));
     }
 
     @Test
     public void handlesRelativePaths() throws IOException, InterruptedException {
         server.enqueue(new MockResponse());
+        server.enqueue(new MockResponse());
 
         resource.path("bar").get();
+        resource.path("foo").put("");
 
         assertEquals("/bar", server.takeRequest().getPath());
+        assertEquals("/foo", server.takeRequest().getPath());
     }
 }

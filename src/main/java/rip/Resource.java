@@ -1,9 +1,8 @@
 package rip;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.OutputStream;
+import java.net.*;
 
 public class Resource {
 
@@ -24,6 +23,15 @@ public class Resource {
         return reader.read(connection);
     }
 
+    public void put(String contents) {
+        HttpURLConnection connection = openConnection();
+        setRequestMethod(connection, "PUT");
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "application/json");
+        send(connection, contents);
+        reader.read(connection);
+    }
+
     private URL createUrl(String relativePath) {
         try {
             return new URL(url, relativePath);
@@ -32,9 +40,25 @@ public class Resource {
         }
     }
 
-    private URLConnection openConnection() {
+    private HttpURLConnection openConnection() {
         try {
-            return url.openConnection();
+            return (HttpURLConnection) url.openConnection();
+        } catch (IOException exception) {
+            throw new ConnectionFailure(exception);
+        }
+    }
+
+    private void setRequestMethod(HttpURLConnection connection, String method) {
+        try {
+            connection.setRequestMethod(method);
+        } catch (ProtocolException shouldNotHappen) {
+            throw new Error(shouldNotHappen);
+        }
+    }
+
+    private void send(HttpURLConnection connection, String contents) {
+        try (OutputStream out = connection.getOutputStream()) {
+            out.write(contents.getBytes());
         } catch (IOException exception) {
             throw new ConnectionFailure(exception);
         }
