@@ -5,6 +5,8 @@ import java.net.*;
 
 public class Resource {
 
+    public static final String MIME_TYPE = "application/json";
+
     private URL url;
     private ResponseReader reader = new ResponseReader();
     private RequestWriter writer = new RequestWriter();
@@ -19,7 +21,7 @@ public class Resource {
 
     public String get(){
         URLConnection connection = openConnection();
-        connection.setRequestProperty("Accept", "application/json");
+        connection.setRequestProperty("Accept", MIME_TYPE);
         return reader.read(connection);
     }
 
@@ -39,7 +41,7 @@ public class Resource {
 
     private void send(String requestMethod, String contents) {
         HttpURLConnection connection = openConnection();
-        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("Content-Type", MIME_TYPE);
         setRequestMethod(connection, requestMethod);
         writer.write(connection, contents);
     }
