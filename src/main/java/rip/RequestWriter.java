@@ -6,8 +6,6 @@ import java.net.URLConnection;
 
 class RequestWriter {
 
-    private ResponseReader reader = new ResponseReader();
-
     void write(URLConnection connection, String contents) {
         connection.setDoOutput(true);
         try (OutputStream out = connection.getOutputStream()) {
@@ -15,7 +13,6 @@ class RequestWriter {
         } catch (IOException exception) {
             throw new ConnectionFailure(exception);
         }
-        reader.read(connection);
     }
 
 }

@@ -54,14 +54,15 @@ public class ResourceTest {
 
     @Test
     public void postsResource() throws InterruptedException {
-        server.enqueue(new MockResponse());
+        server.enqueue(new MockResponse().setBody("foo"));
 
-        resource.post("foo");
+        assertEquals("foo", resource.post("bar"));
 
         RecordedRequest request = server.takeRequest();
         assertEquals("POST", request.getMethod());
-        assertEquals("foo", new String(request.getBody()));
+        assertEquals("bar", new String(request.getBody()));
         assertEquals("application/json", request.getHeader("Content-Type"));
+        assertEquals("application/json", request.getHeader("Accept"));
     }
 
     @Test

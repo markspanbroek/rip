@@ -32,18 +32,20 @@ public class Resource {
     }
 
     public void put(String contents) {
-        send("PUT", contents);
-    }
-
-    public void post(String contents) {
-        send("POST", contents);
-    }
-
-    private void send(String requestMethod, String contents) {
         HttpURLConnection connection = openConnection();
         connection.setRequestProperty("Content-Type", MIME_TYPE);
-        setRequestMethod(connection, requestMethod);
+        setRequestMethod(connection, "PUT");
         writer.write(connection, contents);
+        reader.read(connection);
+    }
+
+    public String post(String contents) {
+        HttpURLConnection connection = openConnection();
+        connection.setRequestProperty("Content-Type", MIME_TYPE);
+        connection.setRequestProperty("Accept", MIME_TYPE);
+        setRequestMethod(connection, "POST");
+        writer.write(connection, contents);
+        return reader.read(connection);
     }
 
     private URL createUrl(String relativePath) {
