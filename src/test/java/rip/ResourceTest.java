@@ -82,10 +82,10 @@ public class ResourceTest {
         server.enqueue(new MockResponse());
 
         resource.path("bar").get();
-        resource.path("foo").put("");
+        resource.path("foo").path("baz").put("");
 
         assertEquals("/bar", server.takeRequest().getPath());
-        assertEquals("/foo", server.takeRequest().getPath());
+        assertEquals("/foo/baz", server.takeRequest().getPath());
     }
 
     @Test

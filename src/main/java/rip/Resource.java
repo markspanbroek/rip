@@ -16,7 +16,7 @@ public class Resource {
     }
 
     public Resource path(String relativePath) {
-        return new Resource(createUrl(relativePath));
+        return new Resource(createUrl(url, relativePath));
     }
 
     public String get(){
@@ -48,12 +48,24 @@ public class Resource {
         return reader.read(connection);
     }
 
-    private URL createUrl(String relativePath) {
+    private URL createUrl(URL context, String relativePath) {
         try {
-            return new URL(url, relativePath);
+            context = addSlashIfNecessary(context);
+            return new URL(context, relativePath);
         } catch (MalformedURLException exception) {
             throw new InvalidUrl(exception);
         }
+    }
+
+    private URL addSlashIfNecessary(URL context) throws MalformedURLException {
+        if (!context.getPath().endsWith("/")) {
+            return new URL(
+                    context.getProtocol(),
+                    context.getHost(),
+                    context.getPort(),
+                    context.getPath() + "/");
+        }
+        return context;
     }
 
     private HttpURLConnection openConnection() {
