@@ -71,4 +71,15 @@ public class Resource {
             throw new Error(shouldNotHappen);
         }
     }
+
+    @Override
+    public boolean equals(Object that) {
+        return (that instanceof Resource) &&
+                url.equals(((Resource) that).url);
+    }
+
+    @Override
+    public int hashCode() {
+        return url.hashCode();
+    }
 }

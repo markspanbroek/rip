@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class ResourceTest {
 
@@ -85,5 +86,20 @@ public class ResourceTest {
 
         assertEquals("/bar", server.takeRequest().getPath());
         assertEquals("/foo", server.takeRequest().getPath());
+    }
+
+    @Test
+    public void equalsWorksAsExpected() {
+        Resource resource = new RestClient().open("http://foo.com/bar");
+        assertEquals(resource, new RestClient().open("http://foo.com/bar"));
+        assertEquals(resource, new RestClient().open("http://foo.com").path("bar"));
+        assertNotEquals(resource, new RestClient().open("http://bar.com"));
+    }
+
+    @Test
+    public void hashCodeIsCompatibleWithEquals() {
+        int hash1 = new RestClient().open("http://foo.com/bar").hashCode();
+        int hash2 = new RestClient().open("http://foo.com").path("bar").hashCode();
+        assertEquals(hash1, hash2);
     }
 }
