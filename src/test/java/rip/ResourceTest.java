@@ -102,4 +102,10 @@ public class ResourceTest {
         int hash2 = new RestClient().open("http://foo.com").path("bar").hashCode();
         assertEquals(hash1, hash2);
     }
+
+    @Test
+    public void toStringIsUrl() {
+        Resource resource = new RestClient().open("http://foo.com").path("bar");
+        assertEquals("http://foo.com/bar", resource.toString());
+    }
 }

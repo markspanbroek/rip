@@ -94,4 +94,9 @@ public class Resource {
     public int hashCode() {
         return url.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return url.toString();
+    }
 }
